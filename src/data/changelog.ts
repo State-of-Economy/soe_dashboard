@@ -8,6 +8,13 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.4",
+    date: "2026-07-15",
+    notes: [
+      "Fix: Auto-Update funktionierte nicht, weil das GitHub-Repo privat war (Release-Downloads brauchen dann einen Login). Repo ist jetzt öffentlich (Quellcode enthält keine Geheimnisse — Discord-Zugangsdaten liegen ausschließlich serverseitig)",
+    ],
+  },
+  {
     version: "0.1.3",
     date: "2026-07-15",
     notes: [
