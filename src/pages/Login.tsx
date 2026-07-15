@@ -4,7 +4,9 @@ import {
   Alert,
   Box,
   Button,
+  Center,
   Divider,
+  Image,
   Paper,
   Stack,
   Text,
@@ -17,6 +19,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { useServerConfig } from "../context/ServerConfigContext";
 import { useAuth } from "../context/AuthContext";
 import { ApiClient } from "../lib/api";
+import soeLogo from "../assets/soe_logo.png";
 
 export function Login() {
   const { serverUrl, discordClientId, setConfig, loading } =
@@ -103,9 +106,14 @@ export function Login() {
     >
       <Paper withBorder shadow="md" p="xl" radius="md" w={420}>
         <Stack gap="md">
+          <Center>
+            <Image src={soeLogo} alt="SoE Logo" w={96} h={96} />
+          </Center>
           <div>
-            <Title order={2}>SoE Supporter Dashboard</Title>
-            <Text c="dimmed" size="sm">
+            <Title order={2} ta="center">
+              SoE Supporter Dashboard
+            </Title>
+            <Text c="dimmed" size="sm" ta="center">
               {needsSetup
                 ? "Einmalige Einrichtung"
                 : "Mit Discord anmelden, um fortzufahren"}

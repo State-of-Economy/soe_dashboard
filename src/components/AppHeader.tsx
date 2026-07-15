@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Avatar, Badge, Button, Group, Text } from "@mantine/core";
+import { Avatar, Badge, Button, Group, Image, Text } from "@mantine/core";
 import { useAuth } from "../context/AuthContext";
+import soeLogo from "../assets/soe_logo.png";
 
 export function AppHeader() {
   const { session, logout } = useAuth();
@@ -20,9 +21,14 @@ export function AppHeader() {
       style={{ borderBottom: "1px solid var(--mantine-color-default-border)" }}
     >
       <Group gap="lg">
-        <Text fw={700} component={Link} to="/search" style={{ textDecoration: "none" }}>
-          SoE Supporter Dashboard
-        </Text>
+        <Link to="/search" style={{ textDecoration: "none" }}>
+          <Group gap="xs">
+            <Image src={soeLogo} alt="SoE Logo" w={28} h={28} />
+            <Text fw={700} c="var(--mantine-color-text)">
+              SoE Supporter Dashboard
+            </Text>
+          </Group>
+        </Link>
         <Button variant="subtle" size="xs" component={Link} to="/search">
           Suche
         </Button>
