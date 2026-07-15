@@ -8,6 +8,15 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.5",
+    date: "2026-07-15",
+    notes: [
+      "Notiz-/Verwarnsystem pro Spieler (jeder Supporter kann Einträge machen, Löschen nur Owner)",
+      "Aktions-Log-Seite (Owner) — alle Supporter-Aktionen im Überblick, nicht nur in Discord",
+      "Versionsnummer von der Startseite in die Titelleiste verschoben",
+    ],
+  },
+  {
     version: "0.1.4",
     date: "2026-07-15",
     notes: [

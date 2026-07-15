@@ -8,9 +8,12 @@ import {
   Card,
   Container,
   Group,
+  Select,
   SimpleGrid,
+  Stack,
   Table,
   Text,
+  Textarea,
   Title,
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
@@ -20,16 +23,18 @@ import { AppHeader } from "../components/AppHeader";
 import { ResetSpawnModal } from "../components/ResetSpawnModal";
 import { ForceParkModal } from "../components/ForceParkModal";
 import { DeleteItemModal } from "../components/DeleteItemModal";
-import type { InventoryItem } from "../lib/api";
+import type { InventoryItem, NoteType } from "../lib/api";
 
 export function PlayerDetail() {
   const { citizenid = "" } = useParams();
-  const { apiClient } = useAuth();
+  const { apiClient, session } = useAuth();
   const queryClient = useQueryClient();
 
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [parkTarget, setParkTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<InventoryItem | null>(null);
+  const [noteType, setNoteType] = useState<NoteType>("note");
+  const [noteText, setNoteText] = useState("");
 
   const playerQuery = useQuery({
     queryKey: ["player", citizenid],
@@ -46,6 +51,12 @@ export function PlayerDetail() {
   const inventoryQuery = useQuery({
     queryKey: ["player", citizenid, "inventory"],
     queryFn: () => apiClient!.getPlayerInventory(citizenid),
+    enabled: !!apiClient,
+  });
+
+  const notesQuery = useQuery({
+    queryKey: ["player", citizenid, "notes"],
+    queryFn: () => apiClient!.getPlayerNotes(citizenid),
     enabled: !!apiClient,
   });
 
@@ -91,6 +102,34 @@ export function PlayerDetail() {
       queryClient.invalidateQueries({
         queryKey: ["player", citizenid, "inventory"],
       });
+    },
+    onError: (err) => {
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      });
+    },
+  });
+
+  const addNoteMutation = useMutation({
+    mutationFn: () => apiClient!.addPlayerNote(citizenid, noteType, noteText),
+    onSuccess: () => {
+      notifications.show({ color: "green", message: "Eintrag gespeichert." });
+      setNoteText("");
+      queryClient.invalidateQueries({ queryKey: ["player", citizenid, "notes"] });
+    },
+    onError: (err) => {
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      });
+    },
+  });
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: (id: number) => apiClient!.deletePlayerNote(citizenid, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["player", citizenid, "notes"] });
     },
     onError: (err) => {
       notifications.show({
@@ -245,6 +284,76 @@ export function PlayerDetail() {
                   ))}
                 </Table.Tbody>
               </Table>
+            )}
+
+            <Title order={4} mb="sm">
+              Notizen &amp; Verwarnungen
+            </Title>
+            <Stack gap="xs" mb="md">
+              <Group align="flex-end">
+                <Select
+                  label="Typ"
+                  value={noteType}
+                  onChange={(v) => setNoteType((v as NoteType) ?? "note")}
+                  data={[
+                    { value: "note", label: "Notiz" },
+                    { value: "warning", label: "Verwarnung" },
+                  ]}
+                  w={160}
+                />
+                <Textarea
+                  label="Eintrag"
+                  placeholder="z.B. Grund, Kontext, Beweis-Link..."
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.currentTarget.value)}
+                  style={{ flex: 1 }}
+                  autosize
+                  minRows={1}
+                />
+                <Button
+                  onClick={() => addNoteMutation.mutate()}
+                  loading={addNoteMutation.isPending}
+                  disabled={!noteText.trim()}
+                >
+                  Eintragen
+                </Button>
+              </Group>
+            </Stack>
+
+            {notesQuery.data && notesQuery.data.notes.length === 0 && (
+              <Text c="dimmed">Noch keine Einträge.</Text>
+            )}
+            {notesQuery.data && notesQuery.data.notes.length > 0 && (
+              <Stack gap="xs">
+                {notesQuery.data.notes.map((note) => (
+                  <Card key={note.id} withBorder padding="sm">
+                    <Group justify="space-between" align="flex-start">
+                      <div>
+                        <Group gap="xs" mb={4}>
+                          <Badge color={note.type === "warning" ? "red" : "blue"}>
+                            {note.type === "warning" ? "Verwarnung" : "Notiz"}
+                          </Badge>
+                          <Text size="xs" c="dimmed">
+                            {note.createdByTag} &middot;{" "}
+                            {new Date(note.createdAt).toLocaleString("de-DE")}
+                          </Text>
+                        </Group>
+                        <Text size="sm">{note.text}</Text>
+                      </div>
+                      {session?.tier === "owner" && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => deleteNoteMutation.mutate(note.id)}
+                        >
+                          <IconTrash size={14} />
+                        </ActionIcon>
+                      )}
+                    </Group>
+                  </Card>
+                ))}
+              </Stack>
             )}
           </>
         )}

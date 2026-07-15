@@ -27,9 +27,14 @@ export function AppHeader() {
           Suche
         </Button>
         {session.tier === "owner" && (
-          <Button variant="subtle" size="xs" component={Link} to="/settings">
-            Einstellungen
-          </Button>
+          <>
+            <Button variant="subtle" size="xs" component={Link} to="/settings">
+              Einstellungen
+            </Button>
+            <Button variant="subtle" size="xs" component={Link} to="/audit-log">
+              Log
+            </Button>
+          </>
         )}
       </Group>
       <Group gap="sm">

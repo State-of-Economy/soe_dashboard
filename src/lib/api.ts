@@ -59,6 +59,16 @@ export interface InventoryItem {
   metadata?: Record<string, unknown>;
 }
 
+export type NoteType = "note" | "warning";
+
+export interface PlayerNote {
+  id: number;
+  type: NoteType;
+  text: string;
+  createdByTag: string;
+  createdAt: string | number;
+}
+
 export interface AuditLogEntry {
   id: number;
   actorTag: string;
@@ -186,6 +196,28 @@ export class ApiClient {
     return this.request<{ success: boolean }>(
       "DELETE",
       `/players/${encodeURIComponent(citizenid)}/inventory/${slot}`,
+    );
+  }
+
+  getPlayerNotes(citizenid: string) {
+    return this.request<{ notes: PlayerNote[] }>(
+      "GET",
+      `/players/${encodeURIComponent(citizenid)}/notes`,
+    );
+  }
+
+  addPlayerNote(citizenid: string, type: NoteType, text: string) {
+    return this.request<{ success: boolean }>(
+      "POST",
+      `/players/${encodeURIComponent(citizenid)}/notes`,
+      { type, text },
+    );
+  }
+
+  deletePlayerNote(citizenid: string, id: number) {
+    return this.request<{ success: boolean }>(
+      "DELETE",
+      `/players/${encodeURIComponent(citizenid)}/notes/${id}`,
     );
   }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getVersion } from "@tauri-apps/api/app";
 import { ActionIcon, Group, Image, Text } from "@mantine/core";
 import { IconMinus, IconSquare, IconSquares, IconX } from "@tabler/icons-react";
 import soeLogo from "../assets/soe_logo.png";
@@ -8,12 +9,14 @@ const appWindow = getCurrentWindow();
 
 export function TitleBar() {
   const [maximized, setMaximized] = useState(false);
+  const [version, setVersion] = useState("");
 
   useEffect(() => {
     appWindow.isMaximized().then(setMaximized);
     const unlisten = appWindow.onResized(() => {
       appWindow.isMaximized().then(setMaximized);
     });
+    getVersion().then(setVersion);
     return () => {
       unlisten.then((fn) => fn());
     };
@@ -35,7 +38,7 @@ export function TitleBar() {
       <Group gap="xs" data-tauri-drag-region style={{ pointerEvents: "none" }}>
         <Image src={soeLogo} alt="SoE Logo" w={18} h={18} />
         <Text size="sm" fw={600} c="dimmed">
-          SoE Supporter Dashboard
+          SoE Supporter Dashboard{version && ` · v${version}`}
         </Text>
       </Group>
 

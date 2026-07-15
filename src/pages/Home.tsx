@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Accordion,
   Badge,
@@ -17,7 +16,6 @@ import {
   IconSearch,
   IconShieldCheck,
 } from "@tabler/icons-react";
-import { getVersion } from "@tauri-apps/api/app";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import { changelog } from "../data/changelog";
@@ -25,11 +23,6 @@ import soeLogo from "../assets/soe_logo.png";
 
 export function Home() {
   const { session } = useAuth();
-  const [version, setVersion] = useState("");
-
-  useEffect(() => {
-    getVersion().then(setVersion);
-  }, []);
 
   return (
     <>
@@ -39,9 +32,6 @@ export function Home() {
           <Image src={soeLogo} alt="SoE Logo" w={56} h={56} />
           <div>
             <Title order={2}>Willkommen, {session?.discordUser.username}</Title>
-            <Text c="dimmed" size="sm">
-              SoE Supporter Dashboard {version && `· v${version}`}
-            </Text>
           </div>
         </Group>
 
