@@ -5,7 +5,9 @@ import {
   Badge,
   Button,
   Container,
+  Divider,
   Group,
+  Pagination,
   SegmentedControl,
   Table,
   Text,
@@ -15,8 +17,52 @@ import {
 import { IconSearch } from "@tabler/icons-react";
 import { useAuth } from "../context/AuthContext";
 import { AppHeader } from "../components/AppHeader";
+import type { PlayerSummary } from "../lib/api";
 
 type SearchMode = "citizenid" | "name";
+
+function PlayerTable({
+  players,
+  onSelect,
+}: {
+  players: PlayerSummary[];
+  onSelect: (citizenid: string) => void;
+}) {
+  return (
+    <Table striped highlightOnHover>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>CitizenID</Table.Th>
+          <Table.Th>Telefon</Table.Th>
+          <Table.Th>Status</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>
+        {players.map((p) => (
+          <Table.Tr
+            key={p.citizenid}
+            style={{ cursor: "pointer" }}
+            onClick={() => onSelect(p.citizenid)}
+          >
+            <Table.Td>
+              {p.charinfo.firstname} {p.charinfo.lastname} ({p.name})
+            </Table.Td>
+            <Table.Td>{p.citizenid}</Table.Td>
+            <Table.Td>{p.charinfo.phone ?? "-"}</Table.Td>
+            <Table.Td>
+              <Badge color={p.online ? "green" : "gray"}>
+                {p.online ? "Online" : "Offline"}
+              </Badge>
+            </Table.Td>
+          </Table.Tr>
+        ))}
+      </Table.Tbody>
+    </Table>
+  );
+}
+
+const PAGE_SIZE = 25;
 
 export function PlayerSearch() {
   const { apiClient } = useAuth();
@@ -27,8 +73,15 @@ export function PlayerSearch() {
     mode: SearchMode;
     value: string;
   } | null>(null);
+  const [listPage, setListPage] = useState(1);
 
-  const { data, isFetching, error } = useQuery({
+  const goToPlayer = (citizenid: string) => navigate(`/player/${citizenid}`);
+
+  const {
+    data: searchData,
+    isFetching: searchFetching,
+    error: searchError,
+  } = useQuery({
     queryKey: ["players", "search", submittedQuery],
     queryFn: async () => {
       if (!apiClient || !submittedQuery) return { results: [] };
@@ -39,10 +92,20 @@ export function PlayerSearch() {
     enabled: !!submittedQuery && !!apiClient,
   });
 
+  const { data: listData, isFetching: listFetching } = useQuery({
+    queryKey: ["players", "list", listPage],
+    queryFn: () => apiClient!.listPlayers(listPage, PAGE_SIZE),
+    enabled: !!apiClient,
+  });
+
   const handleSearch = () => {
     if (!query.trim()) return;
     setSubmittedQuery({ mode, value: query.trim() });
   };
+
+  const totalPages = listData
+    ? Math.max(1, Math.ceil(listData.total / PAGE_SIZE))
+    : 1;
 
   return (
     <>
@@ -72,53 +135,63 @@ export function PlayerSearch() {
           <Button
             leftSection={<IconSearch size={16} />}
             onClick={handleSearch}
-            loading={isFetching}
+            loading={searchFetching}
           >
             Suchen
           </Button>
         </Group>
 
-        {error && (
+        {searchError && (
           <Text c="red" size="sm" mb="md">
-            {error instanceof Error ? error.message : "Fehler bei der Suche"}
+            {searchError instanceof Error
+              ? searchError.message
+              : "Fehler bei der Suche"}
           </Text>
         )}
 
-        {data && data.results.length === 0 && submittedQuery && (
-          <Text c="dimmed">Keine Treffer.</Text>
+        {submittedQuery && (
+          <>
+            {searchData && searchData.results.length === 0 && (
+              <Text c="dimmed" mb="xl">
+                Keine Treffer.
+              </Text>
+            )}
+            {searchData && searchData.results.length > 0 && (
+              <div style={{ marginBottom: "var(--mantine-spacing-xl)" }}>
+                <PlayerTable
+                  players={searchData.results}
+                  onSelect={goToPlayer}
+                />
+              </div>
+            )}
+            <Divider mb="xl" label="Alle Spieler" labelPosition="center" />
+          </>
         )}
 
-        {data && data.results.length > 0 && (
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>CitizenID</Table.Th>
-                <Table.Th>Telefon</Table.Th>
-                <Table.Th>Status</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {data.results.map((p) => (
-                <Table.Tr
-                  key={p.citizenid}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/player/${p.citizenid}`)}
-                >
-                  <Table.Td>
-                    {p.charinfo.firstname} {p.charinfo.lastname} ({p.name})
-                  </Table.Td>
-                  <Table.Td>{p.citizenid}</Table.Td>
-                  <Table.Td>{p.charinfo.phone ?? "-"}</Table.Td>
-                  <Table.Td>
-                    <Badge color={p.online ? "green" : "gray"}>
-                      {p.online ? "Online" : "Offline"}
-                    </Badge>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+        {!submittedQuery && (
+          <Title order={5} mb="sm">
+            Alle Spieler
+          </Title>
+        )}
+
+        {listData && listData.results.length === 0 && (
+          <Text c="dimmed">Keine Spieler gefunden.</Text>
+        )}
+
+        {listData && listData.results.length > 0 && (
+          <>
+            <PlayerTable players={listData.results} onSelect={goToPlayer} />
+            {totalPages > 1 && (
+              <Group justify="center" mt="md">
+                <Pagination
+                  value={listPage}
+                  onChange={setListPage}
+                  total={totalPages}
+                  disabled={listFetching}
+                />
+              </Group>
+            )}
+          </>
         )}
       </Container>
     </>

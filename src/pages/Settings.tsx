@@ -36,8 +36,15 @@ export function Settings() {
     enabled: !!apiClient,
   });
 
+  const logChannelQuery = useQuery({
+    queryKey: ["settings", "log-channel"],
+    queryFn: () => apiClient!.getLogChannel(),
+    enabled: !!apiClient,
+  });
+
   const [target, setTarget] = useState<SpawnTarget>({ x: 0, y: 0, z: 72, w: 0 });
   const [roles, setRoles] = useState<RoleMapping[]>([]);
+  const [logChannelId, setLogChannelId] = useState("");
 
   useEffect(() => {
     if (spawnTargetQuery.data) setTarget(spawnTargetQuery.data);
@@ -46,6 +53,10 @@ export function Settings() {
   useEffect(() => {
     if (rolesQuery.data) setRoles(rolesQuery.data.roles);
   }, [rolesQuery.data]);
+
+  useEffect(() => {
+    if (logChannelQuery.data) setLogChannelId(logChannelQuery.data.channelId);
+  }, [logChannelQuery.data]);
 
   const saveTargetMutation = useMutation({
     mutationFn: () => apiClient!.updateSpawnTarget(target),
@@ -65,6 +76,19 @@ export function Settings() {
     onSuccess: () => {
       notifications.show({ color: "green", message: "Rollen gespeichert." });
       queryClient.invalidateQueries({ queryKey: ["settings", "roles"] });
+    },
+    onError: (err) =>
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      }),
+  });
+
+  const saveLogChannelMutation = useMutation({
+    mutationFn: () => apiClient!.updateLogChannel(logChannelId),
+    onSuccess: () => {
+      notifications.show({ color: "green", message: "Log-Kanal gespeichert." });
+      queryClient.invalidateQueries({ queryKey: ["settings", "log-channel"] });
     },
     onError: (err) =>
       notifications.show({
@@ -204,6 +228,30 @@ export function Settings() {
             Rollen speichern
           </Button>
         </Stack>
+
+        <Title order={5} mt="xl" mb="sm">
+          Discord-Log-Kanal
+        </Title>
+        <Text size="sm" c="dimmed" mb="sm">
+          Jede Supporter-Aktion (Spawn-Reset, Fahrzeug einparken, Item löschen,
+          Einstellungsänderung) wird zusätzlich als Nachricht in diesen Discord-Kanal
+          gepostet. Leer lassen zum Deaktivieren. Der Bot braucht Schreibrechte im
+          Kanal.
+        </Text>
+        <Group>
+          <TextInput
+            placeholder="Discord-Kanal-ID, z.B. 123456789012345678"
+            value={logChannelId}
+            onChange={(e) => setLogChannelId(e.currentTarget.value)}
+            style={{ flex: 1 }}
+          />
+          <Button
+            onClick={() => saveLogChannelMutation.mutate()}
+            loading={saveLogChannelMutation.isPending}
+          >
+            Speichern
+          </Button>
+        </Group>
       </Container>
     </>
   );

@@ -8,6 +8,15 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.3",
+    date: "2026-07-15",
+    notes: [
+      "Alle Spieler-Liste (online zuerst) unter der Suche, seitenweise durchblätterbar",
+      "Spieler-Inventar auf der Detailseite sichtbar, Items können direkt gelöscht werden",
+      "Discord-Log-Kanal: jede Supporter-Aktion (Spawn-Reset, Einparken, Item löschen, Einstellungsänderung) wird zusätzlich in einen konfigurierbaren Discord-Kanal gepostet (Einstellungen, Owner)",
+    ],
+  },
+  {
     version: "0.1.2",
     date: "2026-07-15",
     notes: [

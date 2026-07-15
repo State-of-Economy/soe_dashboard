@@ -51,6 +51,14 @@ export interface RoleMapping {
   label?: string;
 }
 
+export interface InventoryItem {
+  slot: number;
+  name: string;
+  label: string;
+  count: number;
+  metadata?: Record<string, unknown>;
+}
+
 export interface AuditLogEntry {
   id: number;
   actorTag: string;
@@ -130,6 +138,15 @@ export class ApiClient {
     return this.request<void>("POST", "/auth/logout");
   }
 
+  listPlayers(page = 1, pageSize = 25) {
+    return this.request<{
+      results: PlayerSummary[];
+      total: number;
+      page: number;
+      pageSize: number;
+    }>("GET", `/players/list?page=${page}&pageSize=${pageSize}`);
+  }
+
   searchPlayersByCitizenId(citizenid: string) {
     return this.request<{ results: PlayerSummary[] }>(
       "GET",
@@ -155,6 +172,20 @@ export class ApiClient {
     return this.request<{ vehicles: Vehicle[] }>(
       "GET",
       `/players/${encodeURIComponent(citizenid)}/vehicles`,
+    );
+  }
+
+  getPlayerInventory(citizenid: string) {
+    return this.request<{ items: InventoryItem[]; online: boolean }>(
+      "GET",
+      `/players/${encodeURIComponent(citizenid)}/inventory`,
+    );
+  }
+
+  deleteInventoryItem(citizenid: string, slot: number) {
+    return this.request<{ success: boolean }>(
+      "DELETE",
+      `/players/${encodeURIComponent(citizenid)}/inventory/${slot}`,
     );
   }
 
@@ -193,6 +224,16 @@ export class ApiClient {
   updateRoles(roles: RoleMapping[]) {
     return this.request<{ success: boolean }>("PUT", "/settings/roles", {
       roles,
+    });
+  }
+
+  getLogChannel() {
+    return this.request<{ channelId: string }>("GET", "/settings/log-channel");
+  }
+
+  updateLogChannel(channelId: string) {
+    return this.request<{ success: boolean }>("PUT", "/settings/log-channel", {
+      channelId,
     });
   }
 
