@@ -85,7 +85,7 @@ export function Login() {
         discordUser: exchange.discordUser,
       });
 
-      navigate("/search", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       setLoginError(
         err instanceof Error ? err.message : "Login fehlgeschlagen.",
