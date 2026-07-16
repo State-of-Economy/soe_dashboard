@@ -22,6 +22,9 @@ const ACTION_LABELS: Record<string, string> = {
   inventory_item_delete: "Item gelöscht",
   player_note_add: "Notiz/Verwarnung",
   player_note_delete: "Notiz/Verwarnung gelöscht",
+  kick: "Gekickt",
+  ban: "Gebannt",
+  unban: "Bann aufgehoben",
 };
 
 export function AuditLog() {

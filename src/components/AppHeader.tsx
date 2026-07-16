@@ -26,6 +26,9 @@ export function AppHeader() {
         <Button variant="subtle" size="xs" component={Link} to="/search">
           Suche
         </Button>
+        <Button variant="subtle" size="xs" component={Link} to="/bans">
+          Bans
+        </Button>
         {session.tier === "owner" && (
           <>
             <Button variant="subtle" size="xs" component={Link} to="/settings">

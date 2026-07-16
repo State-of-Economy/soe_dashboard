@@ -8,6 +8,14 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.6",
+    date: "2026-07-16",
+    notes: [
+      "Kick & Ban: Spieler direkt aus dem Dashboard kicken oder temporär/permanent bannen (Grund + Beweis-Link sind Pflicht)",
+      "Neue Bans-Seite: Übersicht aller aktiven Bans, Bann per Klick wieder aufheben",
+    ],
+  },
+  {
     version: "0.1.5",
     date: "2026-07-15",
     notes: [

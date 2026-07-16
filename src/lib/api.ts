@@ -61,6 +61,16 @@ export interface InventoryItem {
 
 export type NoteType = "note" | "warning";
 
+export interface BanRecord {
+  id: number;
+  name: string;
+  license: string;
+  discord: string | null;
+  reason: string;
+  expire: number;
+  bannedby: string;
+}
+
 export interface PlayerNote {
   id: number;
   type: NoteType;
@@ -219,6 +229,40 @@ export class ApiClient {
       "DELETE",
       `/players/${encodeURIComponent(citizenid)}/notes/${id}`,
     );
+  }
+
+  kickPlayer(citizenid: string, reason: string, evidenceLink: string) {
+    return this.request<{ success: boolean }>(
+      "POST",
+      `/players/${encodeURIComponent(citizenid)}/kick`,
+      { reason, evidenceLink },
+    );
+  }
+
+  banPlayer(
+    citizenid: string,
+    reason: string,
+    evidenceLink: string,
+    durationHours: number | null,
+  ) {
+    return this.request<{ success: boolean }>(
+      "POST",
+      `/players/${encodeURIComponent(citizenid)}/ban`,
+      { reason, evidenceLink, durationHours },
+    );
+  }
+
+  getBans(page = 1, pageSize = 50) {
+    return this.request<{
+      bans: BanRecord[];
+      total: number;
+      page: number;
+      pageSize: number;
+    }>("GET", `/bans?page=${page}&pageSize=${pageSize}`);
+  }
+
+  unban(id: number) {
+    return this.request<{ success: boolean }>("DELETE", `/bans/${id}`);
   }
 
   resetSpawn(citizenid: string) {

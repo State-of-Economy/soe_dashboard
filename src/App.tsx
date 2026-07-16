@@ -7,6 +7,7 @@ import { PlayerSearch } from "./pages/PlayerSearch";
 import { PlayerDetail } from "./pages/PlayerDetail";
 import { Settings } from "./pages/Settings";
 import { AuditLog } from "./pages/AuditLog";
+import { Bans } from "./pages/Bans";
 import { checkForUpdates } from "./lib/updater";
 import { TitleBar } from "./components/TitleBar";
 
@@ -66,6 +67,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <AuditLog />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/bans"
+              element={
+                <RequireAuth>
+                  <Bans />
                 </RequireAuth>
               }
             />

@@ -23,6 +23,8 @@ import { AppHeader } from "../components/AppHeader";
 import { ResetSpawnModal } from "../components/ResetSpawnModal";
 import { ForceParkModal } from "../components/ForceParkModal";
 import { DeleteItemModal } from "../components/DeleteItemModal";
+import { KickModal } from "../components/KickModal";
+import { BanModal } from "../components/BanModal";
 import type { InventoryItem, NoteType } from "../lib/api";
 
 export function PlayerDetail() {
@@ -35,6 +37,8 @@ export function PlayerDetail() {
   const [deleteTarget, setDeleteTarget] = useState<InventoryItem | null>(null);
   const [noteType, setNoteType] = useState<NoteType>("note");
   const [noteText, setNoteText] = useState("");
+  const [kickModalOpen, setKickModalOpen] = useState(false);
+  const [banModalOpen, setBanModalOpen] = useState(false);
 
   const playerQuery = useQuery({
     queryKey: ["player", citizenid],
@@ -111,6 +115,45 @@ export function PlayerDetail() {
     },
   });
 
+  const kickMutation = useMutation({
+    mutationFn: ({ reason, evidenceLink }: { reason: string; evidenceLink: string }) =>
+      apiClient!.kickPlayer(citizenid, reason, evidenceLink),
+    onSuccess: () => {
+      notifications.show({ color: "green", message: "Spieler gekickt." });
+      setKickModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["player", citizenid] });
+    },
+    onError: (err) => {
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      });
+    },
+  });
+
+  const banMutation = useMutation({
+    mutationFn: ({
+      reason,
+      evidenceLink,
+      durationHours,
+    }: {
+      reason: string;
+      evidenceLink: string;
+      durationHours: number | null;
+    }) => apiClient!.banPlayer(citizenid, reason, evidenceLink, durationHours),
+    onSuccess: () => {
+      notifications.show({ color: "green", message: "Spieler gebannt." });
+      setBanModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["player", citizenid] });
+    },
+    onError: (err) => {
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      });
+    },
+  });
+
   const addNoteMutation = useMutation({
     mutationFn: () => apiClient!.addPlayerNote(citizenid, noteType, noteText),
     onSuccess: () => {
@@ -171,6 +214,21 @@ export function PlayerDetail() {
                   onClick={() => setResetModalOpen(true)}
                 >
                   Spawn-Punkt zurücksetzen
+                </Button>
+                <Button
+                  color="orange"
+                  variant="light"
+                  disabled={!player.online}
+                  onClick={() => setKickModalOpen(true)}
+                >
+                  Kicken
+                </Button>
+                <Button
+                  color="red"
+                  variant="light"
+                  onClick={() => setBanModalOpen(true)}
+                >
+                  Bannen
                 </Button>
               </Group>
             </Group>
@@ -384,6 +442,34 @@ export function PlayerDetail() {
           loading={deleteItemMutation.isPending}
           itemLabel={deleteTarget?.label ?? ""}
           count={deleteTarget?.count ?? 0}
+        />
+        <KickModal
+          opened={kickModalOpen}
+          onClose={() => setKickModalOpen(false)}
+          onConfirm={(reason, evidenceLink) =>
+            kickMutation.mutate({ reason, evidenceLink })
+          }
+          loading={kickMutation.isPending}
+          playerName={
+            player
+              ? `${player.charinfo.firstname ?? ""} ${player.charinfo.lastname ?? ""}`.trim() ||
+                player.name
+              : ""
+          }
+        />
+        <BanModal
+          opened={banModalOpen}
+          onClose={() => setBanModalOpen(false)}
+          onConfirm={(reason, evidenceLink, durationHours) =>
+            banMutation.mutate({ reason, evidenceLink, durationHours })
+          }
+          loading={banMutation.isPending}
+          playerName={
+            player
+              ? `${player.charinfo.firstname ?? ""} ${player.charinfo.lastname ?? ""}`.trim() ||
+                player.name
+              : ""
+          }
         />
       </Container>
     </>
