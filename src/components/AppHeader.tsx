@@ -29,6 +29,9 @@ export function AppHeader() {
         <Button variant="subtle" size="xs" component={Link} to="/bans">
           Bans
         </Button>
+        <Button variant="subtle" size="xs" color="red" component={Link} to="/emergency">
+          Notfall
+        </Button>
         {session.tier === "owner" && (
           <>
             <Button variant="subtle" size="xs" component={Link} to="/settings">

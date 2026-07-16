@@ -328,4 +328,38 @@ export class ApiClient {
       `/audit/log?page=${page}&pageSize=${pageSize}`,
     );
   }
+
+  getLockdown() {
+    return this.request<{ active: boolean }>("GET", "/emergency/lockdown");
+  }
+
+  setLockdown(active: boolean) {
+    return this.request<{ success: boolean; active: boolean }>(
+      "POST",
+      "/emergency/lockdown",
+      { active },
+    );
+  }
+
+  wipeObjects() {
+    return this.request<{ success: boolean; count: number }>(
+      "POST",
+      "/emergency/wipe-objects",
+      {},
+    );
+  }
+
+  wipeVehicles() {
+    return this.request<{ success: boolean; count: number }>(
+      "POST",
+      "/emergency/wipe-vehicles",
+      {},
+    );
+  }
+
+  announce(message: string) {
+    return this.request<{ success: boolean }>("POST", "/emergency/announce", {
+      message,
+    });
+  }
 }

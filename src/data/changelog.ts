@@ -8,6 +8,13 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.8",
+    date: "2026-07-16",
+    notes: [
+      "Neue Notfall-Seite: Server-Lockdown (nur Owner können während dessen noch connecten), alle Objekte/unbesetzten Fahrzeuge entfernen, Server-Ankündigung an alle Online-Spieler",
+    ],
+  },
+  {
     version: "0.1.7",
     date: "2026-07-16",
     notes: [

@@ -26,6 +26,10 @@ const ACTION_LABELS: Record<string, string> = {
   ban: "Gebannt",
   unban: "Bann aufgehoben",
   reset_bucket: "Instanz zurückgesetzt",
+  lockdown: "Lockdown geändert",
+  wipe_objects: "Objekte entfernt",
+  wipe_vehicles: "Fahrzeuge entfernt",
+  announce: "Ankündigung gesendet",
 };
 
 export function AuditLog() {

@@ -8,6 +8,7 @@ import { PlayerDetail } from "./pages/PlayerDetail";
 import { Settings } from "./pages/Settings";
 import { AuditLog } from "./pages/AuditLog";
 import { Bans } from "./pages/Bans";
+import { Emergency } from "./pages/Emergency";
 import { checkForUpdates } from "./lib/updater";
 import { TitleBar } from "./components/TitleBar";
 
@@ -75,6 +76,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <Bans />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/emergency"
+              element={
+                <RequireAuth>
+                  <Emergency />
                 </RequireAuth>
               }
             />
