@@ -25,6 +25,7 @@ export interface PlayerSummary {
   money: Record<string, number>;
   job?: { name: string; label: string; grade?: { name: string; level: number } };
   online: boolean;
+  routingBucket?: number | null;
 }
 
 export interface Vehicle {
@@ -269,6 +270,14 @@ export class ApiClient {
     return this.request<{ success: boolean }>(
       "POST",
       `/players/${encodeURIComponent(citizenid)}/reset-spawn`,
+      {},
+    );
+  }
+
+  resetBucket(citizenid: string) {
+    return this.request<{ success: boolean; alreadyDefault: boolean }>(
+      "POST",
+      `/players/${encodeURIComponent(citizenid)}/reset-bucket`,
       {},
     );
   }

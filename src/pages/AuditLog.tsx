@@ -25,6 +25,7 @@ const ACTION_LABELS: Record<string, string> = {
   kick: "Gekickt",
   ban: "Gebannt",
   unban: "Bann aufgehoben",
+  reset_bucket: "Instanz zurückgesetzt",
 };
 
 export function AuditLog() {

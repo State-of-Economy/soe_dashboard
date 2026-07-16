@@ -8,6 +8,13 @@ export interface ChangelogEntry {
 // src-tauri/tauri.conf.json + src-tauri/Cargo.toml + package.json passen).
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.1.7",
+    date: "2026-07-16",
+    notes: [
+      "Instanz-/Routing-Bucket-Reset: Spieler, die in einer falschen Instanz feststecken (z.B. nach Disconnect in einem Haus/einer Firma), lassen sich per Knopfdruck zurück auf die Standard-Instanz setzen",
+    ],
+  },
+  {
     version: "0.1.6",
     date: "2026-07-16",
     notes: [

@@ -81,6 +81,25 @@ export function PlayerDetail() {
     },
   });
 
+  const resetBucketMutation = useMutation({
+    mutationFn: () => apiClient!.resetBucket(citizenid),
+    onSuccess: (data) => {
+      notifications.show({
+        color: "green",
+        message: data.alreadyDefault
+          ? "Spieler war bereits in der Standard-Instanz."
+          : "Instanz wurde zurückgesetzt.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["player", citizenid] });
+    },
+    onError: (err) => {
+      notifications.show({
+        color: "red",
+        message: err instanceof Error ? err.message : "Fehlgeschlagen",
+      });
+    },
+  });
+
   const forceParkMutation = useMutation({
     mutationFn: (plate: string) => apiClient!.forcePark(plate),
     onSuccess: () => {
@@ -208,12 +227,30 @@ export function PlayerDetail() {
                 <Badge color={player.online ? "green" : "gray"}>
                   {player.online ? "Online" : "Offline"}
                 </Badge>
+                {player.online &&
+                  player.routingBucket != null &&
+                  player.routingBucket !== 0 && (
+                    <Badge color="yellow">Bucket {player.routingBucket}</Badge>
+                  )}
                 <Button
                   color="orange"
                   variant="light"
                   onClick={() => setResetModalOpen(true)}
                 >
                   Spawn-Punkt zurücksetzen
+                </Button>
+                <Button
+                  color="orange"
+                  variant="light"
+                  disabled={
+                    !player.online ||
+                    player.routingBucket == null ||
+                    player.routingBucket === 0
+                  }
+                  loading={resetBucketMutation.isPending}
+                  onClick={() => resetBucketMutation.mutate()}
+                >
+                  Instanz zurücksetzen
                 </Button>
                 <Button
                   color="orange"
